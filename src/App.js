@@ -55,6 +55,7 @@ export function App({ geo, live }) {
   const [sheetOpen, setSheetOpen] = useState(false);
   const wide = useMediaQuery(WIDE_LAYOUT), asSheet = useMediaQuery(SHEET_LAYOUT);
   const stage = useRef();
+  if (feed?.archived) clock.archived = true;
 
   const { uf } = route;
   const office = feed ? OFFICES[0] : route.office;
@@ -104,7 +105,7 @@ export function App({ geo, live }) {
 
   const insights = html`<${Insights} place=${scope.name} result=${scope.result} trend=${trend}
     flips=${flips} updates=${updates} onMoment=${clock.replay}
-    pending=${feed ? (municipality ? 'A série histórica cobre o Brasil e os estados.' : 'Aguardando a próxima coleta…') : undefined}/>`;
+    pending=${feed ? (feed.final || feed.archived ? 'Sem série histórica para este recorte.' : municipality ? 'A série histórica cobre o Brasil e os estados.' : 'Aguardando a próxima coleta…') : undefined}/>`;
 
   return html`<div class="app">
     <${TopBar} office=${office} offices=${feed ? [OFFICES[0]] : OFFICES} live=${feed} onOffice=${route.setOffice} theme=${theme} onToggleTheme=${toggleTheme}

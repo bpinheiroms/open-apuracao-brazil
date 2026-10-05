@@ -1325,3 +1325,6 @@ button.place-row:focus-visible {
   border-color: #c98a1b;
   color: #c98a1b;
 }
+@media (max-width: 599px) {
+  .sim-chip .chip-extra { display: none; }
+}

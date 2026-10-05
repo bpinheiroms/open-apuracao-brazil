@@ -126,7 +126,7 @@ async function tick() {
     }
     write(join(OUT, 'status.json'), JSON.stringify({
       t: Date.now(), ele: cfg.ele, tse: snapshot.tse, m: snapshot.m, snap: history.at(-1)?.latest ?? history.at(-1)?.s, n: history.length,
-      h: (({ latest, ...rest }) => rest)(history.at(-1) ?? {}), pending: changedMus.length - muJobs.length, error: lastError,
+      h: (({ latest, ...rest }) => rest)(history.at(-1) ?? {}), pending: changedMus.length - muJobs.length, final: br.row[1] > 0 && br.row[0] === br.row[1], error: lastError,
     }), { compress: false });
     writeFileSync(STATE, JSON.stringify(state));
     log(`tick ok: ${requests - before} req ao TSE, ${muJobs.length} municípios, ${(br.row[0] / Math.max(1, br.row[1]) * 100).toFixed(2)}% seções, pendentes ${changedMus.length - muJobs.length}`);

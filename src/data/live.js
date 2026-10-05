@@ -96,7 +96,7 @@ export function useLive(geo, boot, replayMinute) {
   const snapshot = useMemo(() => shown && toSnapshot(geo, shown), [geo, shown]);
   if (!boot) return null;
   const age = now - status.t;
-  return { snapshot, samples, minute: Math.floor(data.m ?? 0), tse: status.tse, age, stale: age > STALE_MS };
+  return { snapshot, samples, minute: Math.floor(data.m ?? 0), tse: status.tse, age, final: !!status.final, archived: !!status.archived, stale: !status.final && !status.archived && age > STALE_MS };
 }
 
 const toPoint = (minute, result) => ({ minute: Math.floor(minute), completion: result.completion, shares: [share(result, 0), share(result, 1)] });

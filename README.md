@@ -48,6 +48,10 @@ resultados.tse.jus.br
 - **Frontend.** `src/data/live.js` traduz o formato do TSE para o mesmo formato de resultado que a simulação produz, então os componentes não mudaram. Se existir `/live/status.json`, o app entra no modo ao vivo: o selo "Simulação" vira "TSE · hh:mm" e fica âmbar com "Atrasado" quando a última coleta passa de 3 minutos. Ao vivo só há o cargo de presidente, e as zonas eleitorais ficam sem cor porque o TSE não publica resultado por zona nesses arquivos. A série do gráfico cobre o Brasil e os estados. `?simulado` força a simulação, e o build com `VITE_LIVE=1` (o da imagem Docker) nunca cai para dados simulados.
 - **Saúde.** `GET /healthz` responde 200 com a idade da última coleta e 503 se ela passar de `STALE_S` (180 s).
 
+### Demonstração
+
+**https://open-apuracao.agenturl.dev** é um **instantâneo estático**, não o modo ao vivo: os arquivos de `live/` foram gerados no formato exato do coletor a partir de dados reais do 1º turno, coletados por município às 22h49 de 04/10/2026 (99,94% das seções). A série nacional do gráfico vem de parciais registradas durante a noite. O selo mostra "TSE · instantâneo 04/10 22:49", e nada ali se atualiza. Para acompanhar ao vivo é preciso rodar o coletor. Quando a apuração chega a 100%, o coletor marca o resultado como final e o selo passa a mostrar "TSE · resultado final".
+
 ### Rodar localmente, sem tocar no TSE
 
 ```sh
