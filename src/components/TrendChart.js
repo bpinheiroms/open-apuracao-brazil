@@ -33,7 +33,7 @@ function endLabels(ys) {
   return placed;
 }
 
-export function TrendChart({ points, place, onMoment }) {
+export function TrendChart({ points, place, onMoment, pending = 'Recontando as parciais anteriores…' }) {
   const [ref, width] = useWidth();
   const [active, setActive] = useState(null);
   const ready = points.length > 1 && width > 0;
@@ -101,7 +101,7 @@ export function TrendChart({ points, place, onMoment }) {
     <h3>Ao longo da apuração</h3>
     <ul class="trend-legend">${SERIES.map(index => html`<li key=${index}><i class=${'line-key tone-' + CANDIDATES[index].tone}></i>${CANDIDATES[index].name}</li>`)}</ul>
     <div class="trend-plot" ref=${ref} style=${{ height: HEIGHT + 'px' }}>
-      ${plot || html`<p class="trend-loading">Recontando as parciais anteriores…</p>`}
+      ${plot || html`<p class="trend-loading">${pending}</p>`}
     </div>
   </section>`;
 }

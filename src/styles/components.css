@@ -1315,3 +1315,13 @@ button.place-row:focus-visible {
     margin-top: var(--space-5);
   }
 }
+
+.sim-chip.is-live {
+  border-style: solid;
+  color: var(--ink);
+}
+.sim-chip.is-stale {
+  border-style: solid;
+  border-color: #c98a1b;
+  color: #c98a1b;
+}

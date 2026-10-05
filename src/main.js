@@ -2,6 +2,7 @@ import { render } from 'preact';
 import { html } from './lib/html.js';
 import { createGeography } from './map/geography.js';
 import { App } from './App.js';
+import { loadLive } from './data/live.js';
 import './styles/index.css';
 
 const DATA_FILES = ['/data/brasil.topo.json', '/data/zonas.json'];
@@ -22,9 +23,9 @@ function BootError({ error }) {
 }
 
 try {
-  const [topology, zones] = await Promise.all(DATA_FILES.map(loadJson));
+  const [topology, zones, live] = await Promise.all([...DATA_FILES.map(loadJson), loadLive()]);
   root.replaceChildren();
-  render(html`<${App} geo=${createGeography(topology, zones)}/>`, root);
+  render(html`<${App} geo=${createGeography(topology, zones)} live=${live}/>`, root);
 } catch (error) {
   root.replaceChildren();
   render(html`<${BootError} error=${error}/>`, root);

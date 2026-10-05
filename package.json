@@ -14,7 +14,11 @@
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "test": "node --test tests/*.test.js"
+    "test": "node --test tests/*.test.js",
+    "collect": "node infra/collector.mjs",
+    "serve": "node infra/serve.mjs",
+    "start": "node infra/collector.mjs & node infra/serve.mjs",
+    "mock:tse": "node infra/mock-tse.mjs"
   },
   "dependencies": {
     "htm": "^3.1.1",

@@ -7,7 +7,7 @@ const LIVE_SECOND_OFFSET = 7;
  * Simulated counting clock: advances locally while live, or sits on `replayMinute`
  * (owned by the route, so a replayed moment can be shared as a link).
  */
-export function useClock(replayMinute, setReplayMinute) {
+export function useClock(replayMinute, setReplayMinute, liveMinute = null) {
   const [ticks, setTicks] = useState(0);
 
   useEffect(() => {
@@ -16,6 +16,10 @@ export function useClock(replayMinute, setReplayMinute) {
   }, []);
 
   const live = replayMinute == null;
+  if (liveMinute != null) {
+    const minute = live ? liveMinute : replayMinute;
+    return { live, seconds: minute * 60, minute, replay: setReplayMinute, goLive: () => setReplayMinute(null) };
+  }
   const liveSeconds = Math.min(CLOCK.end * 60, CLOCK.live * 60 + LIVE_SECOND_OFFSET + ticks);
   return {
     live,

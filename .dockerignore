@@ -1,0 +1,5 @@
+node_modules
+dist
+live
+.collector-state.json
+.git
