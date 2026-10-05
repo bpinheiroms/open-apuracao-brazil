@@ -14,7 +14,7 @@ export function Timeline({ clock }) {
       <div class="timeline-ticks" aria-hidden="true">${HOUR_TICKS.map(hour => html`<span key=${hour}>${hour}h</span>`)}</div>
     </div>
     <button class="live-button" aria-pressed=${clock.live} onClick=${clock.goLive}>
-      <i class="pulse"></i>${clock.live ? 'Ao vivo' : 'Voltar ao vivo'}
+      <i class="pulse"></i>${clock.archived ? (clock.live ? 'Último dado' : 'Ir ao último dado') : clock.live ? 'Ao vivo' : 'Voltar ao vivo'}
     </button>
   </div>`;
 }

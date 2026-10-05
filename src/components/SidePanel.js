@@ -156,7 +156,7 @@ const TABS = { lugares: 'Lugares', andamento: 'Andamento' };
  * The contextual column. When `insights` is given (no room for its own column) it becomes a
  * second tab; when `sheet` is given (narrow screens) the panel is a bottom sheet over the map.
  */
-export function SidePanel({ geo, snapshot, route, municipality, zoneRows, theme, placeName, insights, sheet }) {
+export function SidePanel({ geo, snapshot, route, municipality, zoneRows, theme, placeName, insights, sheet, live }) {
   const [tab, setTab] = useState('lugares');
   const current = insights ? tab : 'lugares';
   const places = municipality
@@ -178,7 +178,9 @@ export function SidePanel({ geo, snapshot, route, municipality, zoneRows, theme,
     <div class="panel-body" role=${insights ? 'tabpanel' : null} inert=${sheet && !sheet.open}>
       ${current === 'lugares' ? places : insights}
       <footer class="panel-foot">
-        <p><strong>Demonstração.</strong> Todos os votos, percentuais e o andamento da apuração são simulados.</p>
+        ${live
+          ? html`<p><strong>Dados oficiais do TSE</strong>, coletados por um único servidor e servidos por CDN.</p>`
+          : html`<p><strong>Demonstração.</strong> Todos os votos, percentuais e o andamento da apuração são simulados.</p>`}
         <p>Malha municipal do IBGE · zonas em áreas aproximadas</p>
       </footer>
     </div>

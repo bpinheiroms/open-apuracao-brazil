@@ -14,6 +14,7 @@ export function useHistory(geo, office) {
   const [samples, setSamples] = useState(() => cache.get(office) ?? []);
 
   useEffect(() => {
+    if (!geo) return;
     let timer;
     const step = () => {
       const done = cache.get(office) ?? [];

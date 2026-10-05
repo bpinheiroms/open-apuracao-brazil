@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { html } from './lib/html.js';
 import { buildTrend, recentUpdates, stateFlips } from './data/history.js';
+import { liveFlips, liveTrend, liveUpdates, useLive } from './data/live.js';
 import { buildSnapshot, OFFICES, STATES, zoneResults } from './data/mocks.js';
 import { useClock } from './hooks/useClock.js';
 import { useHistory } from './hooks/useHistory.js';
@@ -45,20 +46,23 @@ function useFlipped(states, office) {
   return flipped;
 }
 
-export function App({ geo }) {
+export function App({ geo, live }) {
   const route = useRoute(geo);
-  const clock = useClock(route.replay, minute => route.setReplay(minute == null ? null : Math.round(minute)));
+  const feed = useLive(geo, live, route.replay);
+  const clock = useClock(route.replay, minute => route.setReplay(minute == null ? null : Math.round(minute)), feed?.minute);
   const [theme, toggleTheme] = useTheme();
   const [searching, setSearching] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const wide = useMediaQuery(WIDE_LAYOUT), asSheet = useMediaQuery(SHEET_LAYOUT);
   const stage = useRef();
+  if (feed?.archived) clock.archived = true;
 
-  const { uf, office } = route;
+  const { uf } = route;
+  const office = feed ? OFFICES[0] : route.office;
   const municipality = route.municipalityId ? geo.byId.get(route.municipalityId) : null;
-  const snapshot = useMemo(() => buildSnapshot(geo, clock.minute, office), [geo, clock.minute, office]);
+  const snapshot = useMemo(() => feed?.snapshot ?? buildSnapshot(geo, clock.minute, office), [geo, feed?.snapshot, clock.minute, office]);
   const zoneRows = useMemo(() => {
-    const geometry = municipality && geo.zonesFor(municipality.id);
+    const geometry = !feed && municipality && geo.zonesFor(municipality.id);
     if (!geometry) return null;
     const fixed = municipality.id === FIXED_CAPITAL && office === OFFICES[0];
     return zoneResults(municipality, geometry, clock.minute, office, fixed ? 0 : snapshot.adjustments[municipality.uf]);
@@ -68,13 +72,16 @@ export function App({ geo }) {
     ? { name: municipality.name, result: snapshot.results.get(municipality.id) }
     : uf ? { name: STATES[uf][0], result: snapshot.states[uf] } : { name: 'Brasil', result: snapshot.national };
 
-  const history = useHistory(geo, office);
+  const simHistory = useHistory(feed ? null : geo, office);
+  const history = feed ? feed.samples : simHistory;
   const trend = useMemo(
-    () => buildTrend(geo, history, { uf, municipality }, office, clock.minute, scope.result),
+    () => feed ? liveTrend(history, { uf, municipality }, clock.minute, scope.result)
+      : buildTrend(geo, history, { uf, municipality }, office, clock.minute, scope.result),
     [geo, history, municipality, snapshot, uf],
   );
-  const updates = useMemo(() => recentUpdates(trend, scope.result, clock.minute, { national: !uf }), [trend]);
-  const flips = useMemo(() => uf ? null : stateFlips(history, clock.minute, snapshot.states), [history, snapshot, uf]);
+  const updates = useMemo(() => feed ? liveUpdates(history, uf, clock.minute)
+    : recentUpdates(trend, scope.result, clock.minute, { national: !uf }), [trend]);
+  const flips = useMemo(() => uf ? null : (feed ? liveFlips : stateFlips)(history, clock.minute, snapshot.states), [history, snapshot, uf]);
   const flipped = useFlipped(snapshot.states, office);
 
   // Picking a place from the sheet closes it, so the map underneath shows the result.
@@ -93,14 +100,15 @@ export function App({ geo }) {
   const saveMap = () => exportMap({
     frame: stage.current,
     theme,
-    filename: `mapa-${municipality?.id || uf || 'brasil'}-simulado.png`,
+    filename: `mapa-${municipality?.id || uf || 'brasil'}-${feed ? 'tse' : 'simulado'}.png`,
   });
 
   const insights = html`<${Insights} place=${scope.name} result=${scope.result} trend=${trend}
-    flips=${flips} updates=${updates} onMoment=${clock.replay}/>`;
+    flips=${flips} updates=${updates} onMoment=${clock.replay}
+    pending=${feed ? (feed.final || feed.archived ? 'Sem série histórica para este recorte.' : municipality ? 'A série histórica cobre o Brasil e os estados.' : 'Aguardando a próxima coleta…') : undefined}/>`;
 
   return html`<div class="app">
-    <${TopBar} office=${office} onOffice=${route.setOffice} theme=${theme} onToggleTheme=${toggleTheme}
+    <${TopBar} office=${office} offices=${feed ? [OFFICES[0]] : OFFICES} live=${feed} onOffice=${route.setOffice} theme=${theme} onToggleTheme=${toggleTheme}
       onSearch=${() => setSearching(true)} onDownload=${saveMap}/>
 
     <main>
@@ -112,7 +120,7 @@ export function App({ geo }) {
         ${asSheet && sheetOpen && html`<div class="sheet-backdrop" onClick=${() => setSheetOpen(false)}></div>`}
         <${SidePanel} geo=${geo} snapshot=${snapshot} route=${navigation} municipality=${municipality}
           zoneRows=${zoneRows} theme=${theme} placeName=${scope.name} insights=${wide ? null : insights}
-          sheet=${asSheet ? { open: sheetOpen, toggle: () => setSheetOpen(open => !open) } : null}/>
+          sheet=${asSheet ? { open: sheetOpen, toggle: () => setSheetOpen(open => !open) } : null} live=${!!feed}/>
       </div>
     </main>
 

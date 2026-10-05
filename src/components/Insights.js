@@ -33,9 +33,9 @@ function Flips({ flips, onMoment }) {
 }
 
 /** Everything about how the count is going, as opposed to where: stats, trend, flips and bulletins. */
-export function Insights({ place, result, trend, flips, updates, onMoment }) {
+export function Insights({ place, result, trend, flips, updates, onMoment, pending }) {
   return html`<div class="insights">
-    <${TrendChart} points=${trend} place=${place} onMoment=${onMoment}/>
+    <${TrendChart} points=${trend} place=${place} onMoment=${onMoment} pending=${pending}/>
     <${Turnout} result=${result}/>
     ${flips && html`<${Flips} flips=${flips} onMoment=${onMoment}/>`}
     <${UpdatesFeed} updates=${updates}/>

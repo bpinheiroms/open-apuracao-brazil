@@ -34,7 +34,7 @@ export function ElectionMap({ geo, results, stateResults, uf, municipality, zone
   const interaction = useRef({}), touches = useRef(new Map());
   const [size, setSize] = useState({ width: 500, height: 500 });
   const [hover, setHover] = useState(null), [view, setView] = useState(null);
-  const zones = municipality && geo.zonesFor(municipality.id);
+  const zones = municipality && zoneRows && geo.zonesFor(municipality.id);
   const colors = MAP_THEMES[theme];
   const fill = result => resultColor(result, theme, metric);
   const bubbles = unit === 'eleitorado';
